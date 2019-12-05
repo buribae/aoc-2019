@@ -69,9 +69,9 @@ def generate_pw(range_min, range_max):
 # print("is_not_decreasing:", is_not_decreasing(n))
 #
 # # # test check_pw
-# test1 = check_pw(111111, 111111, 111115)
-# test2 = check_pw(223450, 223450, 223455)
-# test3 = check_pw(123789, 123789, 123799)
+# test1 = check_pw(111111, 111111, 111115)  # T
+# test2 = check_pw(223450, 223450, 223455)  # F
+# test3 = check_pw(123789, 123789, 123799)  # F
 #
 # print(test1)
 # print(test2)
