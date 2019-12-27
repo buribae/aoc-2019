@@ -22,4 +22,7 @@ def get_all_paths(orbit_map):
 
 with open('../data/6.txt') as f:
     orbits = generate_orbits(f.read().splitlines())
-    print(len(get_all_paths(orbits)))
+    y = set(get_path(orbits, 'YOU'))
+    s = set(get_path(orbits, 'SAN'))
+    shortest = y ^ s
+    print(len(shortest) - 2)
