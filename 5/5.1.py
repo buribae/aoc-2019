@@ -12,7 +12,6 @@
 
 from enum import Enum
 import csv
-import itertools
 
 
 class OpCode(Enum):

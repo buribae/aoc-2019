@@ -1,17 +1,6 @@
-# Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
-# For example, the instruction 3,50 would take an input value and store it at address 50.
-# Opcode 4 outputs the value of its only parameter. For example, the instruction 4,50 would output the value at address 50.
-
-# Second, you'll need to add support for parameter modes:
-# Each parameter of an instruction is handled based on its parameter mode.
-# Right now, your ship computer already understands parameter mode 0, position mode,
-# which causes the parameter to be interpreted as a position - if the parameter is 50, its value is the value stored at address 50 in memory.
-# Until now, all parameters have been in position mode.
-# Now, your ship computer will also need to handle parameters in mode 1, immediate mode.
-# In immediate mode, a parameter is interpreted as a value - if the parameter is 50, its value is simply 50.
-
 from enum import Enum
 import csv
+import itertools
 
 
 class OpCode(Enum):
@@ -36,9 +25,11 @@ def get_parameter_mode(param_code):
     return modes  # as a list, reversed, reading it from right to left
 
 
-def process(code_list, input):
+def process(code_list, phase, input_number):
     res = code_list[:]
     ptr = 0
+    output = None
+    is_phased = False
     while True:
         #print("--------------")
         #print(ptr)
@@ -51,7 +42,7 @@ def process(code_list, input):
         #print("P3:", res[ptr + 3])
 
         if int(str(res[ptr])[-2:]) == OpCode.HALT.value:
-            return res
+            return output
 
         elif code == OpCode.ADD.value:
             p1 = res[ptr + 1] if modes[0] else res[res[ptr + 1]]
@@ -74,13 +65,15 @@ def process(code_list, input):
             ptr += 4
 
         elif code == OpCode.SAVE.value:
-            res[res[ptr + 1]] = input
-            #print("Save_target:", res[ptr + 1], res[res[ptr + 1]], input)
+            res[res[ptr + 1]] = input_number if is_phased else phase
+            if not is_phased:
+                is_phased = True
+            #print("Save_target:", res[ptr + 1], res[res[ptr + 1]], input_number)
             ptr += 2
 
         elif code == OpCode.GET.value:
             p1 = res[ptr + 1] if modes[0] else res[res[ptr + 1]]
-            print(p1)
+            output = p1
             ptr += 2
 
         elif code == OpCode.JIT.value:
@@ -124,13 +117,28 @@ def process(code_list, input):
             ptr += 4
 
 
+# PART 1
+def run_amplifiers(code_list, phase_list, initial_input):
+    cur_list = code_list[:]
+    output = initial_input
+    for phase in phase_list:
+        output = process(cur_list, int(phase), output)
+    return output
+
+
 codes = []
-for line in csv.reader(open('../data/5.txt'), delimiter=','):
+for line in csv.reader(open('../data/7.txt'), delimiter=','):
     codes = [int(i) for i in line]
 
 
-test = [3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
-1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
-999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99]
+test = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]
+test2 = [3,23,3,24,1002,24,10,24,1002,23,-1,23,
+101,5,23,23,1,24,23,23,4,23,99,0,0]
+test3 = [3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,
+1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0]
 
-print(process(codes, 5))
+outputs = set()
+for phases in map("".join, itertools.permutations('01234')):
+    outputs.add(run_amplifiers(codes, phases, 0))
+
+print(max(outputs))
