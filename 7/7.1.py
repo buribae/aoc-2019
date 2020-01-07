@@ -117,7 +117,6 @@ def process(code_list, phase, input_number):
             ptr += 4
 
 
-# PART 1
 def run_amplifiers(code_list, phase_list, initial_input):
     cur_list = code_list[:]
     output = initial_input
